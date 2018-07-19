@@ -3,24 +3,17 @@ pipelineJob('hello-k8s') {
         cps {
             sandbox()
             script("""
-pipeline {
-    agent {
-        kubernetes {
-            label 'k8s'
-            inheritFrom 'base'
-            containerTemplate {
-                name 'maven'
-                image 'alpine:3.7'
-                ttyEnabled true
-                command 'cat'
-            }
-        }
-    }
-    stages {
-        stage('say hello') {
-            steps {
-                script {
-                    sh("echo k8s")
+def label = "mypod-${UUID.randomUUID().toString()}"
+podTemplate(label: label, containers: [
+    containerTemplate(name: 'maven', image: 'maven:3.3.9-jdk-8-alpine', ttyEnabled: true, command: 'cat')
+  ]) {
+
+    node(label) {
+        stage('Get a Maven project') {
+            git 'https://github.com/ruchirsanghavi/spring-boot-rest-example.git'
+            container('maven') {
+                stage('Build a Maven project') {
+                    sh 'mvn -B clean install'
                 }
             }
         }

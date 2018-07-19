@@ -1,4 +1,4 @@
-pipelineJob('hello-k8s') {
+pipelineJob('spring-boot-rest-example') {
     definition {
         cps {
             sandbox()
